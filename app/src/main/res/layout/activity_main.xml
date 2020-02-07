@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/addContact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginStart="32dp"
+        android:text="Add contact"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+    <Button
+        android:id="@+id/shareContact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:text="Share your contact"
+        app:layout_constraintTop_toTopOf="@+id/addContact"
+        app:layout_constraintStart_toEndOf="@+id/addContact"
+        />
+
+    <TextView
+        android:id="@+id/state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Please wait..."
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toBottomOf="@+id/addContact"
+        app:layout_constraintStart_toStartOf="@+id/addContact"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/contacts"
+        android:scrollbars="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/state"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

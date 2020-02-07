@@ -1,0 +1,2 @@
+include ':app', ':lndroid-client-debug'
+rootProject.name='Lndroid.Messenger'
