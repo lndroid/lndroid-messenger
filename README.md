@@ -5,7 +5,7 @@ Lndroid.Messenger is an instant messaging app that sends messages over Lightning
 
 The custom records used to attach messages to lightning payments are the same as in [Whatsat](https://github.com/joostjager/whatsat), except for the message signature, which is not yet implemented. When full compatibility is implemented, you'd be able to exchange messages with Whatsat apps.
 
-To see the video demonstration of the app, check [this video](https://www.youtube.com/watch?v=bF-1QxFTvHU). Description of what is happening on the video is [available here](https://github.com/lndroid/lndroid-wallet/).
+To see the video demonstration of the app, check [this video](https://www.youtube.com/watch?v=bF-1QxFTvHU). Description of what is happening on the video is [available here](https://github.com/lndroid/lndroid-wallet/#here-is-what-you-see-on-the-lndroid-demo-video).
 
 # TODO
 
