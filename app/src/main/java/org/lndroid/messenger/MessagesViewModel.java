@@ -26,6 +26,7 @@ public class MessagesViewModel extends WalletViewModelBase {
     protected void onCleared() {
         paymentListLoader_.destroy();
         sendPayment_.destroy();
+        super.onCleared();
     }
 
 //    ActionAddAppContact addAppContact() { return addAppContact_; }

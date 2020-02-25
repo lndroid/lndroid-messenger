@@ -8,10 +8,10 @@ import android.util.Log;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 
 import org.lndroid.framework.common.HEX;
+import org.lndroid.framework.common.ISigner;
+import org.lndroid.framework.defaults.DefaultSigner;
 
 public class WalletKeyStore {
 
@@ -20,7 +20,7 @@ public class WalletKeyStore {
     private static final WalletKeyStore INSTANCE = new WalletKeyStore();
     private static final String TAG = "WalletKeyStore";
 
-    private String pubkey_;
+    private ISigner signer_;
 
     static WalletKeyStore getInstance() { return INSTANCE; }
 
@@ -35,24 +35,24 @@ public class WalletKeyStore {
             if (!ks.containsAlias(ALIAS))
                 return;
 
-            PublicKey key = ((KeyStore.PrivateKeyEntry)ks.getEntry(ALIAS, null)).getCertificate().getPublicKey();
-            pubkey_ = HEX.fromBytes(key.getEncoded());
+            KeyStore.PrivateKeyEntry key = ((KeyStore.PrivateKeyEntry)ks.getEntry(ALIAS, null));
+            signer_ = DefaultSigner.create(key.getPrivateKey(),
+                    HEX.fromBytes(key.getCertificate().getPublicKey().getEncoded()));
         } catch (Exception e) {
             Log.e(TAG, "keystore error " + e);
         }
     }
 
-    private String generateAppKeyPair() {
+    private void generateAppKeyPair() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
-            return null;
+            return;
 
         try {
 
             KeyGenParameterSpec params = new KeyGenParameterSpec.Builder(
                     ALIAS,
                     KeyProperties.PURPOSE_SIGN | KeyProperties.PURPOSE_VERIFY)
-                    .setDigests(KeyProperties.DIGEST_SHA256,
-                            KeyProperties.DIGEST_SHA512)
+                    .setDigests(KeyProperties.DIGEST_SHA256)
                     .build();
 
             KeyPairGenerator kpg = KeyPairGenerator.getInstance(
@@ -60,19 +60,22 @@ public class WalletKeyStore {
             kpg.initialize(params);
 
             KeyPair kp = kpg.generateKeyPair();
-
-            return HEX.fromBytes(kp.getPublic().getEncoded());
+            signer_ = DefaultSigner.create(kp.getPrivate(),
+                    HEX.fromBytes(kp.getPublic().getEncoded()));
 
         } catch (Exception e) {
             Log.e(TAG, "generate key pair error "+e);
         }
-
-        return null;
     }
 
     String getAppPubkey() {
-        if (pubkey_ == null)
-            pubkey_ = generateAppKeyPair();
-        return pubkey_;
+        if (signer_ == null) {
+            generateAppKeyPair();
+        }
+        return signer_.getPublicKey();
+    }
+
+    ISigner getSigner() {
+        return signer_;
     }
 }

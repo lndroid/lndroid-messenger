@@ -17,6 +17,7 @@ public class PaymentsPrivilegeViewModel extends WalletViewModelBase {
     @Override
     protected void onCleared() {
         addContactPaymentsPrivilege_.destroy();
+        super.onCleared();
     }
 
     ActionAddContactPaymentsPrivilege addContactPaymentsPrivilege() { return addContactPaymentsPrivilege_; }

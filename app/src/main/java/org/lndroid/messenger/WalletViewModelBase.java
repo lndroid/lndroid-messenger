@@ -8,10 +8,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
-import org.lndroid.framework.DefaultIpcCodecProvider;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.client.IPluginClient;
 import org.lndroid.framework.client.PluginClientBuilder;
+import org.lndroid.framework.common.Errors;
+import org.lndroid.framework.common.IResponseCallback;
 
 public class WalletViewModelBase extends AndroidViewModel {
 
@@ -22,6 +23,7 @@ public class WalletViewModelBase extends AndroidViewModel {
     private WalletServiceDao walletServiceDao_;
     private MutableLiveData<WalletService> walletService_ = new MutableLiveData<>();
     private MutableLiveData<Boolean> ready_ = new MutableLiveData<>();
+    private MutableLiveData<WalletData.Error> clientError_ = new MutableLiveData<>();
     private IPluginClient pluginClient_;
 
     protected Database db() {
@@ -69,12 +71,17 @@ public class WalletViewModelBase extends AndroidViewModel {
         });
     }
 
+    @Override
+    protected void onCleared() {
+        pluginClient_.disconnect(ctx_);
+        super.onCleared();
+    }
+
     void connect() {
         WalletService ws = walletService_.getValue();
 
         pluginClient_ = new PluginClientBuilder()
                 .setIpc(true)
-                .setIpcCodecProvider(new DefaultIpcCodecProvider())
                 .setUserIdentity(WalletData.UserIdentity.builder()
                         .setAppPubkey(WalletKeyStore.getInstance().getAppPubkey())
                         .setAppPackageName(Constants.APP_PACKAGE_NAME)
@@ -82,8 +89,20 @@ public class WalletViewModelBase extends AndroidViewModel {
                 .setServicePackageName(ws.packageName)
                 .setServiceClassName(ws.className)
                 .setServicePubkey(ws.pubkey)
+                .setSigner(WalletKeyStore.getInstance().getSigner())
                 .build();
         pluginClient_.connect(ctx_);
+        pluginClient_.setOnError(new IResponseCallback<WalletData.Error>() {
+            @Override
+            public void onResponse(WalletData.Error error) {
+                clientError_.setValue(error);
+            }
+
+            @Override
+            public void onError(String s, String s1) {
+                clientError_.setValue(WalletData.Error.builder().setCode(s).setMessage(s1).build());
+            }
+        });
 
         onConnect();
     }
@@ -91,6 +110,7 @@ public class WalletViewModelBase extends AndroidViewModel {
     LiveData<Boolean> ready() {
         return ready_;
     }
+    LiveData<WalletData.Error> clientError() { return clientError_; }
 }
 
 

@@ -17,6 +17,7 @@ public class ContactsPrivilegeViewModel extends WalletViewModelBase {
     @Override
     protected void onCleared() {
         addListContactsPrivilege_.destroy();
+        super.onCleared();
     }
 
     ActionAddListContactsPrivilege addListContactsPrivilege() { return addListContactsPrivilege_; }

@@ -16,7 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import org.lndroid.framework.IResponseCallback;
+import org.lndroid.framework.common.IResponseCallback;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.Errors;
 import org.lndroid.framework.usecases.IRequestFactory;

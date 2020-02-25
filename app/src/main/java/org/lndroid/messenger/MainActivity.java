@@ -15,7 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.lndroid.framework.IResponseCallback;
+import org.lndroid.framework.common.IResponseCallback;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.Errors;
 import org.lndroid.framework.usecases.IRequestFactory;
@@ -180,6 +180,16 @@ public class MainActivity extends AppCompatActivity {
                     state_.setText("Error: "+error.message());
             }
         });
+
+        model_.clientError().observe(this, new Observer<WalletData.Error>() {
+            @Override
+            public void onChanged(WalletData.Error error) {
+                if (error != null && Errors.IPC_IDENTITY_ERROR.equals(error.code())) {
+                    showConnect();
+                    finish();
+                }
+            }
+        });
     }
 
     private void recoverUseCases() {
@@ -229,11 +239,18 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    private void showConnect() {
+        Intent intent = new Intent(this, WalletConnectActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         if (Boolean.TRUE.equals(model_.ready().getValue()) && model_.contactListError().getValue() != null) {
-            model_.contactListRefresh();
+            // FIXME wtf?
+//            model_.contactListRefresh();
         }
     }
 

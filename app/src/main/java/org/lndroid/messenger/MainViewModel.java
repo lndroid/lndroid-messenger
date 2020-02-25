@@ -28,6 +28,7 @@ public class MainViewModel extends WalletViewModelBase {
         addAppContact_.destroy();
         shareContact_.destroy();
         contactListLoader_.destroy();
+        super.onCleared();
     }
 
     ActionAddAppContact addAppContact() { return addAppContact_; }
