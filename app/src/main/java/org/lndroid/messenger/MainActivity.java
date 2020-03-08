@@ -249,7 +249,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (Boolean.TRUE.equals(model_.ready().getValue()) && model_.contactListError().getValue() != null) {
-            // FIXME wtf?
 //            model_.contactListRefresh();
         }
     }

@@ -70,8 +70,11 @@
         android:layout_marginTop="10dp"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
-        app:layout_constraintStart_toStartOf="@+id/state"
         app:layout_constraintBottom_toTopOf="@+id/state"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintVertical_bias="1.0"
         />
 
 

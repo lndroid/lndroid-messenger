@@ -60,12 +60,6 @@ class PaymentListView {
                     status_.setText("Failed");
                     break;
                 case WalletData.SEND_PAYMENT_STATE_PENDING:
-                    if (sp.nextTryTime() > 0)
-                        status_.setText("Retrying");
-                    else
-                        status_.setText("Sending");
-                    break;
-                case WalletData.SEND_PAYMENT_STATE_SENDING:
                     status_.setText("Sending");
                     break;
             }
@@ -143,7 +137,6 @@ class PaymentListView {
             @Override
             public boolean areItemsTheSame(
                     @NonNull WalletData.Payment a, @NonNull WalletData.Payment b) {
-                Log.i("DI", "a "+a.id()+" b "+b.id());
                 return a.id() == b.id();
             }
 
@@ -151,7 +144,6 @@ class PaymentListView {
             public boolean areContentsTheSame(
                     @NonNull WalletData.Payment a, @NonNull WalletData.Payment b) {
 
-                Log.i("DI", "a "+a.id()+" b "+b.id()+" same "+a.equals(b));
                 return a.equals(b);
             }
         };

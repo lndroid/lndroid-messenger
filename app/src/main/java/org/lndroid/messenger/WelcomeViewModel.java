@@ -1,25 +1,20 @@
 package org.lndroid.messenger;
 
-import android.app.Application;
-import android.content.Context;
-import android.os.AsyncTask;
-
-import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.room.Room;
 
-public class WelcomeViewModel extends AndroidViewModel {
+public class WelcomeViewModel extends ViewModel {
 
     private static final String TAG = "WelcomeViewModel";
 
     private WalletServiceDao walletServiceDao_;
     private MutableLiveData<WalletService> walletService_ = new MutableLiveData<>();
 
-    public WelcomeViewModel(Application app) {
-        super(app);
+    public WelcomeViewModel() {
+        super();
 
-        Database db = Database.open(app);
+        Database db = Database.getInstance();
         walletServiceDao_ = db.walletServiceDao();
 
         db.execute(new Runnable() {

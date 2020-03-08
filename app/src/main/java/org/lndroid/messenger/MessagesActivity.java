@@ -191,6 +191,7 @@ public class MessagesActivity extends AppCompatActivity {
         // of messages so that most recent are at the bottom
         LinearLayoutManager lm = new LinearLayoutManager(this);
         lm.setReverseLayout(true);
+        lm.setStackFromEnd(true);
         messages_.setLayoutManager(lm);
 
         // set click listener to open contact details
@@ -248,10 +249,18 @@ public class MessagesActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        Notifier.getInstance().popCurrentContact();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        Notifier.getInstance().pushCurrentContact(contactId_);
+
         if (Boolean.TRUE.equals(model_.ready().getValue()) && model_.paymentListError().getValue() != null) {
-            model_.paymentListRefresh();
+//            model_.paymentListRefresh();
         }
     }
 }

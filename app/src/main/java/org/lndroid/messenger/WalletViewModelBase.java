@@ -2,6 +2,8 @@ package org.lndroid.messenger;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -10,9 +12,15 @@ import androidx.lifecycle.Observer;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.client.IPluginClient;
+import org.lndroid.framework.client.IPluginTransaction;
+import org.lndroid.framework.client.IPluginTransactionCallback;
 import org.lndroid.framework.client.PluginClientBuilder;
 import org.lndroid.framework.common.Errors;
+import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.common.IResponseCallback;
+import org.lndroid.framework.defaults.DefaultPlugins;
+
+import java.io.IOException;
 
 public class WalletViewModelBase extends AndroidViewModel {
 
@@ -47,7 +55,7 @@ public class WalletViewModelBase extends AndroidViewModel {
 
         ctx_ = app;
 
-        db_ = Database.open(ctx_);
+        db_ = Database.getInstance();
 
         walletServiceDao_ = db_.walletServiceDao();
 

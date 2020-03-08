@@ -30,7 +30,7 @@ public class WalletConnectViewModel extends AndroidViewModel {
 
         ctx_ = app;
 
-        db_ = Database.open(ctx_);
+        db_ = Database.getInstance();
 
         walletServiceDao_ = db_.walletServiceDao();
     }
