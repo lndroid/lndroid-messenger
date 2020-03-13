@@ -1,7 +1,6 @@
 package org.lndroid.messenger;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +17,7 @@ import java.util.Locale;
 
 import org.lndroid.framework.WalletData;
 
-class PaymentListView {
+class MessageListView {
 
     public static class Holder extends RecyclerView.ViewHolder {
         private View parent_;
@@ -96,11 +95,44 @@ class PaymentListView {
 
     public static class Adapter extends PagedListAdapter<WalletData.Payment, Holder> {
 
-        protected Adapter() {
-            super(DIFF_CALLBACK);
+        private class EmptyView extends RecyclerView.AdapterDataObserver {
+            private View emptyView_;
+
+            public EmptyView(View ev) {
+                emptyView_ = ev;
+                checkIfEmpty();
+            }
+
+            private void checkIfEmpty() {
+                boolean emptyViewVisible = Adapter.this.getItemCount() == 0;
+                emptyView_.setVisibility(emptyViewVisible ? View.VISIBLE : View.GONE);
+            }
+
+            @Override
+            public void onChanged() {
+                checkIfEmpty();
+            }
+
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                checkIfEmpty();
+            }
+
+            @Override
+            public void onItemRangeRemoved(int positionStart, int itemCount) {
+                checkIfEmpty();
+            }
         }
 
         private View.OnClickListener itemClickListener_;
+
+        public Adapter() {
+            super(DIFF_CALLBACK);
+        }
+
+        public void setEmptyView(View view) {
+            registerAdapterDataObserver(new EmptyView(view));
+        }
 
         public void setItemClickListener (View.OnClickListener cl) {
             itemClickListener_ = cl;
@@ -113,7 +145,7 @@ class PaymentListView {
             LayoutInflater inflater = LayoutInflater.from(context);
 
             // Inflate the custom layout
-            View view = inflater.inflate(R.layout.list_payments, parent, false);
+            View view = inflater.inflate(R.layout.list_messages, parent, false);
             if (itemClickListener_ != null)
                 view.setOnClickListener(itemClickListener_);
 

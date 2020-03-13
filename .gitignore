@@ -14,5 +14,6 @@ build
 .cxx
 .idea
 *~
-*/*.aar
-
+*.aar
+*.apk
+*.aab

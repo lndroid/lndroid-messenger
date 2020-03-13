@@ -43,11 +43,45 @@ class ContactListView {
 
     public static class Adapter extends PagedListAdapter<WalletData.Contact, Holder> {
 
-        protected Adapter() {
-            super(DIFF_CALLBACK);
+
+        private class EmptyView extends RecyclerView.AdapterDataObserver {
+            private View emptyView_;
+
+            public EmptyView(View ev) {
+                emptyView_ = ev;
+                checkIfEmpty();
+            }
+
+            private void checkIfEmpty() {
+                boolean emptyViewVisible = Adapter.this.getItemCount() == 0;
+                emptyView_.setVisibility(emptyViewVisible ? View.VISIBLE : View.GONE);
+            }
+
+            @Override
+            public void onChanged() {
+                checkIfEmpty();
+            }
+
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                checkIfEmpty();
+            }
+
+            @Override
+            public void onItemRangeRemoved(int positionStart, int itemCount) {
+                checkIfEmpty();
+            }
         }
 
         private View.OnClickListener itemClickListener_;
+
+        public Adapter() {
+            super(DIFF_CALLBACK);
+        }
+
+        public void setEmptyView(View view) {
+            registerAdapterDataObserver(new EmptyView(view));
+        }
 
         public void setItemClickListener(View.OnClickListener cl) {
             itemClickListener_ = cl;

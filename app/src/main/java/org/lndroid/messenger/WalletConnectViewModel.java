@@ -8,7 +8,6 @@ import android.util.Log;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
-import androidx.room.Room;
 
 public class WalletConnectViewModel extends AndroidViewModel {
     private static final String TAG = "WalletConnectViewModel";

@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.lndroid.framework.common.IResponseCallback;
 import org.lndroid.framework.WalletData;
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(WalletData.Contact r) {
                 Log.i(TAG, "contact "+r);
-                state_.setText("Added contact");
+                Toast.makeText(MainActivity.this, "Added contact", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -109,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(WalletData.ShareContactResponse r) {
                 Log.i(TAG, "shared "+r);
-                state_.setText("Shared contact");
+                Toast.makeText(MainActivity.this, "Shared contact", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -140,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
 
         // create list view adapter
         final ContactListView.Adapter adapter = new ContactListView.Adapter();
+        adapter.setEmptyView(findViewById(R.id.notFound));
 
         // subscribe adapter to model list updates
         model_.contactList().observe(this, new Observer<PagedList<WalletData.Contact>>() {
@@ -249,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (Boolean.TRUE.equals(model_.ready().getValue()) && model_.contactListError().getValue() != null) {
-//            model_.contactListRefresh();
+            model_.contactListRefresh();
         }
     }
 

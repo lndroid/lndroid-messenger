@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.lndroid.framework.common.IResponseCallback;
 import org.lndroid.framework.WalletData;
@@ -77,6 +78,26 @@ public class MessagesActivity extends AppCompatActivity {
     }
 
     private void initUseCases() {
+
+        model_.getContact().setRequest(WalletData.GetRequestLong.builder()
+                .setId(contactId_)
+                .setNoAuth(true)
+                .setSubscribe(true)
+                .build());
+        model_.getContact().data().observe(this, new Observer<WalletData.Contact>() {
+            @Override
+            public void onChanged(WalletData.Contact contact) {
+                MessagesActivity.this.getSupportActionBar().setTitle(contact.name());
+            }
+        });
+        model_.getContact().error().observe(this, new Observer<WalletData.Error>() {
+            @Override
+            public void onChanged(WalletData.Error error) {
+                Log.e(TAG, "Failed to get contact "+error);
+                Toast.makeText(MessagesActivity.this, "Error: "+error.message(), Toast.LENGTH_LONG).show();
+            }
+        });
+
         model_.sendPayment().setRequestFactory(this, new IRequestFactory<WalletData.SendPaymentRequest>() {
             @Override
             public WalletData.SendPaymentRequest create() {
@@ -173,7 +194,8 @@ public class MessagesActivity extends AppCompatActivity {
         model_.setListPaymentsRequest(listRequest);
 
         // create list view adapter
-        final PaymentListView.Adapter adapter = new PaymentListView.Adapter();
+        final MessageListView.Adapter adapter = new MessageListView.Adapter();
+        adapter.setEmptyView(findViewById(R.id.notFound));
 
         // subscribe adapter to model list updates
         model_.paymentList().observe(this, new Observer<PagedList<WalletData.Payment>>() {
@@ -181,6 +203,7 @@ public class MessagesActivity extends AppCompatActivity {
             public void onChanged(PagedList<WalletData.Payment> payments) {
                 Log.i(TAG, "list "+payments.size());
                 adapter.submitList(payments);
+                messages_.scrollToPosition(0); //payments.getPositionOffset() + payments.getLoadedCount());
             }
         });
 
@@ -198,7 +221,7 @@ public class MessagesActivity extends AppCompatActivity {
         adapter.setItemClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PaymentListView.Holder viewHolder = (PaymentListView.Holder)messages_.findContainingViewHolder(view);
+                MessageListView.Holder viewHolder = (MessageListView.Holder)messages_.findContainingViewHolder(view);
                 WalletData.Payment p = viewHolder.payment();
                 Log.i(TAG, "click on "+p);
                 if (p == null)
@@ -222,6 +245,8 @@ public class MessagesActivity extends AppCompatActivity {
     private void recoverUseCases() {
         if (model_.sendPayment().isExecuting())
             sendMessage();
+        if (!model_.getContact().isActive())
+            model_.getContact().start();
     }
 
     private void sendMessage() {

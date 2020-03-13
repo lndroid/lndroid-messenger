@@ -12,15 +12,8 @@ import androidx.lifecycle.Observer;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.client.IPluginClient;
-import org.lndroid.framework.client.IPluginTransaction;
-import org.lndroid.framework.client.IPluginTransactionCallback;
 import org.lndroid.framework.client.PluginClientBuilder;
-import org.lndroid.framework.common.Errors;
-import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.common.IResponseCallback;
-import org.lndroid.framework.defaults.DefaultPlugins;
-
-import java.io.IOException;
 
 public class WalletViewModelBase extends AndroidViewModel {
 
@@ -85,7 +78,7 @@ public class WalletViewModelBase extends AndroidViewModel {
         super.onCleared();
     }
 
-    void connect() {
+    private void connect() {
         WalletService ws = walletService_.getValue();
 
         pluginClient_ = new PluginClientBuilder()
@@ -99,7 +92,23 @@ public class WalletViewModelBase extends AndroidViewModel {
                 .setServicePubkey(ws.pubkey)
                 .setSigner(WalletKeyStore.getInstance().getSigner())
                 .build();
-        pluginClient_.connect(ctx_);
+        pluginClient_.setOnConnection(new IResponseCallback<Boolean>() {
+            @Override
+            public void onResponse(Boolean connected) {
+                Log.i(TAG, "connection state "+connected);
+                if (!connected) {
+                    Log.i(TAG, "reconnecting");
+                    Toast.makeText(ctx_, "Reconnecting to wallet", Toast.LENGTH_SHORT).show();
+                    pluginClient_.connect(ctx_);
+                }
+            }
+
+            @Override
+            public void onError(String s, String s1) {
+                Log.e(TAG, "plugin client connection error "+s+" err "+s1);
+                Toast.makeText(ctx_, "Client error: "+s1, Toast.LENGTH_LONG).show();
+            }
+        });
         pluginClient_.setOnError(new IResponseCallback<WalletData.Error>() {
             @Override
             public void onResponse(WalletData.Error error) {
@@ -112,6 +121,7 @@ public class WalletViewModelBase extends AndroidViewModel {
             }
         });
 
+        pluginClient_.connect(ctx_);
         onConnect();
     }
 

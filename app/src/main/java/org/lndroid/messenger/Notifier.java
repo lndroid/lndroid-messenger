@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.MutableLiveData;
@@ -28,9 +27,6 @@ import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.usecases.GetPaymentPeerContact;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
 
 public class Notifier {
@@ -52,14 +48,26 @@ public class Notifier {
         walletService_.observeForever(new Observer<WalletService>() {
             @Override
             public void onChanged(WalletService walletService) {
-                connect();
+                if (walletService != null)
+                    connect();
+                else
+                    getWalletService(true);
             }
         });
 
+        getWalletService(false);
+    }
+
+    private void getWalletService(final boolean later) {
         final Database db = Database.getInstance();
         db.execute(new Runnable() {
             @Override
             public void run() {
+                if (later) {
+                    try {
+                        Thread.currentThread().sleep(1000);
+                    } catch (InterruptedException e) {}
+                }
                 WalletService ws = db.walletServiceDao().getWalletService();
                 walletService_.postValue(ws);
             }
@@ -80,6 +88,22 @@ public class Notifier {
                 .setServicePubkey(ws.pubkey)
                 .setSigner(WalletKeyStore.getInstance().getSigner())
                 .build();
+        pluginClient_.setOnConnection(new IResponseCallback<Boolean>() {
+            @Override
+            public void onResponse(Boolean connected) {
+                Log.i(TAG, "client connection state "+connected);
+                if (!connected) {
+                    Log.i(TAG, "reconnecting");
+                    pluginClient_.connect(ctx_);
+                    start();
+                }
+            }
+
+            @Override
+            public void onError(String s, String s1) {
+                Log.e(TAG, "client connection error "+s+" err "+s1);
+            }
+        });
         pluginClient_.connect(ctx_);
 
         start();
@@ -125,13 +149,13 @@ public class Notifier {
                         }
                     }
                 });
-        WalletData.SubscribeNewPaidInvoices req = WalletData.SubscribeNewPaidInvoices.builder()
+        WalletData.SubscribeNewPaidInvoicesRequest req = WalletData.SubscribeNewPaidInvoicesRequest.builder()
                 .setComponentPackageName("org.lndroid.messenger")
                 .setComponentClassName(EventBroadcastReceiver.class.getName())
                 .setNoAuth(true)
                 .setProtocolExtension(WalletData.PROTOCOL_MESSAGES)
                 .build();
-        tx.start(req, WalletData.SubscribeNewPaidInvoices.class);
+        tx.start(req, WalletData.SubscribeNewPaidInvoicesRequest.class);
         tx.detach();
     }
 
@@ -157,6 +181,7 @@ public class Notifier {
                 .setContentIntent(pendingIntent)
                 .setContentText(p.message())
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
                 ;
 
         notificationManager.notify(0, builder.build());

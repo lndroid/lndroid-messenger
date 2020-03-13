@@ -1,2 +1,2 @@
-include ':app', ':lndroid-client-debug'
+include ':app', ':lndroid-client-debug', ':lndroid-client-release'
 rootProject.name='Lndroid.Messenger'

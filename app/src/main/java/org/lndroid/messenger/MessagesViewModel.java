@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.paging.PagedList;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.usecases.GetContact;
 import org.lndroid.framework.usecases.JobSendPayment;
 import org.lndroid.framework.usecases.ListPayments;
 
@@ -17,6 +18,7 @@ public class MessagesViewModel extends WalletViewModelBase {
     private JobSendPayment sendPayment_;
     private ListPayments paymentListLoader_;
     private ListPayments.Pager paymentListPager_;
+    private GetContact getContact_;
 
     public MessagesViewModel(Application app) {
         super(app);
@@ -26,6 +28,7 @@ public class MessagesViewModel extends WalletViewModelBase {
     protected void onCleared() {
         paymentListLoader_.destroy();
         sendPayment_.destroy();
+        getContact_.destroy();
         super.onCleared();
     }
 
@@ -35,6 +38,7 @@ public class MessagesViewModel extends WalletViewModelBase {
     protected void onConnect() {
 
         sendPayment_ = new JobSendPayment(pluginClient());
+        getContact_ = new GetContact(pluginClient());
 
         paymentListLoader_ = new ListPayments(pluginClient());
 
@@ -46,6 +50,7 @@ public class MessagesViewModel extends WalletViewModelBase {
     }
 
     JobSendPayment sendPayment() { return sendPayment_; }
+    GetContact getContact() { return getContact_; }
 
     // set new request, invalidates paymentList PagedList so that
     // results could be reloaded
