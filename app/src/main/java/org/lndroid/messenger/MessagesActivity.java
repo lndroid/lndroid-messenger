@@ -38,6 +38,8 @@ public class MessagesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messages);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         model_ = ViewModelProviders.of(this).get(MessagesViewModel.class);
 
         messages_ = findViewById(R.id.messages);

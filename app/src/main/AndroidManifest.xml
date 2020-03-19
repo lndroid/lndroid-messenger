@@ -17,7 +17,8 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".MessagesActivity"></activity>
+        <activity android:name=".MessagesActivity"
+            android:parentActivityName=".MainActivity" />
         <activity android:name=".PaymentsPrivilegeActivity" />
         <activity android:name=".ContactsPrivilegeActivity" />
         <activity android:name=".WelcomeActivity">

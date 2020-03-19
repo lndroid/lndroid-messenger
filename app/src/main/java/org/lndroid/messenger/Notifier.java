@@ -150,7 +150,7 @@ public class Notifier {
                     }
                 });
         WalletData.SubscribeNewPaidInvoicesRequest req = WalletData.SubscribeNewPaidInvoicesRequest.builder()
-                .setComponentPackageName("org.lndroid.messenger")
+                .setComponentPackageName(BuildConfig.APPLICATION_ID)
                 .setComponentClassName(EventBroadcastReceiver.class.getName())
                 .setNoAuth(true)
                 .setProtocolExtension(WalletData.PROTOCOL_MESSAGES)
@@ -161,34 +161,37 @@ public class Notifier {
 
     private void notifyMessage(final WalletData.Payment p, WalletData.Contact contact) {
 
-        NotificationManager notificationManager = (NotificationManager)
-                ctx_.getSystemService(Context.NOTIFICATION_SERVICE);
+        // this contact is current and thus user will see this message in the current dialog,
+        // so no need to create a notification, but still need to mark message as notified
+        if (currentContacts_.isEmpty() || !currentContacts_.peek().equals(contact.id())) {
 
-        Intent intent = new Intent(ctx_, MessagesActivity.class);
-        intent.putExtra(Constants.EXTRA_CONTACT_ID, contact.id());
+            NotificationManager notificationManager = (NotificationManager)
+                    ctx_.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(ctx_, (int)contact.id(), intent, 0);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            Intent intent = new Intent(ctx_, MessagesActivity.class);
+            intent.putExtra(Constants.EXTRA_CONTACT_ID, contact.id());
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(
-                ctx_, MessengerApplication.NEW_MESSAGE_CHANNEL_ID)
-                .setContentTitle(contact.name())
-                .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-                // NOTE: this is required!
-                // FIXME change
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setAutoCancel(true)
-                .setContentIntent(pendingIntent)
-                .setContentText(p.message())
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setDefaults(NotificationCompat.DEFAULT_ALL)
-                ;
+            PendingIntent pendingIntent = PendingIntent.getActivity(ctx_, (int) contact.id(), intent, 0);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        notificationManager.notify(0, builder.build());
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(
+                    ctx_, MessengerApplication.NEW_MESSAGE_CHANNEL_ID)
+                    .setContentTitle(contact.name())
+                    .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                    // NOTE: this is required!
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setAutoCancel(true)
+                    .setContentIntent(pendingIntent)
+                    .setContentText(p.message())
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setDefaults(NotificationCompat.DEFAULT_ALL);
 
-        Log.i(TAG, "notification for ctx "+ctx_);
+            notificationManager.notify(0, builder.build());
 
+            Log.i(TAG, "notification for ctx " + ctx_);
+        }
 
+        // mark as notified
         IPluginTransaction tx = pluginClient_.createTransaction(
                 DefaultPlugins.SET_NOTIFIED_INVOICES, "", new IPluginTransactionCallback() {
 
@@ -231,10 +234,6 @@ public class Notifier {
             public void onResponse(WalletData.Contact contact) {
                 // FIXME anonym sending a message?
                 if (contact == null)
-                    return;
-
-                // this contact is current and thus user will see this message in the current dialog
-                if (!currentContacts_.isEmpty() && currentContacts_.peek().equals(contact.id()))
                     return;
 
                 Log.e(TAG, "got message from contact "+contact);
