@@ -9,6 +9,6 @@ public class Constants {
 
     public static final String EXTRA_CONTACT_ID = "org.lndroid.messenger.extra.EXTRA_CONTACT_ID";
 
-    public static final int MAX_MESSAGE_LENGTH = 128;
+    public static final int MAX_MESSAGE_LENGTH = 512;
     public static final long MAX_AMOUNT = 2000;
 }

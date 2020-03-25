@@ -125,6 +125,7 @@ class MessageListView {
         }
 
         private View.OnClickListener itemClickListener_;
+        private View.OnLongClickListener itemLongClickListener_;
 
         public Adapter() {
             super(DIFF_CALLBACK);
@@ -138,6 +139,10 @@ class MessageListView {
             itemClickListener_ = cl;
         }
 
+        public void setItemLongClickListener (View.OnLongClickListener cl) {
+            itemLongClickListener_ = cl;
+        }
+
         @NonNull
         @Override
         public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -148,6 +153,8 @@ class MessageListView {
             View view = inflater.inflate(R.layout.list_messages, parent, false);
             if (itemClickListener_ != null)
                 view.setOnClickListener(itemClickListener_);
+            if (itemLongClickListener_ != null)
+                view.setOnLongClickListener(itemLongClickListener_);
 
             // Return a new holder instance
             return new Holder(view);

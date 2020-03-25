@@ -7,7 +7,10 @@ import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -104,9 +107,9 @@ public class MessagesActivity extends AppCompatActivity {
             @Override
             public WalletData.SendPaymentRequest create() {
                 String message = message_.getText().toString();
-                if (message.length() > Constants.MAX_MESSAGE_LENGTH) {
+                if (message.getBytes().length > Constants.MAX_MESSAGE_LENGTH) {
                     state_.setText("Max message size: "+Constants.MAX_MESSAGE_LENGTH
-                            +", your message: "+message.length());
+                            +", your message: "+message.getBytes().length+" bytes.");
                     message_.setEnabled(true);
                     return null;
                 }
@@ -230,6 +233,24 @@ public class MessagesActivity extends AppCompatActivity {
                     return;
 
                 // FIXME select,copy,etc
+            }
+        });
+        adapter.setItemLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                MessageListView.Holder viewHolder = (MessageListView.Holder)messages_.findContainingViewHolder(view);
+                WalletData.Payment p = viewHolder.payment();
+                Log.i(TAG, "long click on "+p);
+                if (p == null)
+                    return true;
+
+                ClipboardManager clipboard = (ClipboardManager) view.getContext().getSystemService(
+                        Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("text", p.message());
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(view.getContext(), "Copied to clipboard", Toast.LENGTH_SHORT).show();
+
+                return true;
             }
         });
 
